@@ -8,13 +8,17 @@ for line in text:
     for id in range(int(range_ids[0]), int(range_ids[1])+1):
         text_id = str(id)
 
-        # can likely optimize by incrementing to next range that can be split
         id_length = len(text_id)
-        if id_length % 2 == 0:
-            midpoint = id_length // 2
-            right, left = text_id[:midpoint], text_id[midpoint:]
-            if right == left:
+        midpoint = id_length // 2
+        for pattern_length in range(1, midpoint+1):
+            if id_length % pattern_length != 0:
+                continue
+
+            pattern_chunks = [text_id[i:i+pattern_length] for i in range(0, id_length, pattern_length)]
+            pattern_set = set(pattern_chunks)
+            if len(pattern_set) == 1:
                 invalid_ids.append(id)
+                break
 
 sum = 0
 for invalid_id in invalid_ids:
