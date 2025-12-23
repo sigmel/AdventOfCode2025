@@ -21,31 +21,29 @@ def findContainingCircuit(point, circuits):
             return circuit
     return None
 
-circuits = []
-num_connections = 1000
+circuits = [set([tuple(point)]) for point in points]
+num_connections = len(sorted_pairs)
+last_connection = []
 for connection in range(0, num_connections):
     pair = sorted_pairs[connection]
-    # see if either of the two points are already in a circuit
     circuit0 = findContainingCircuit(pair[0], circuits)
     circuit1 = findContainingCircuit(pair[1], circuits)
 
-    # if they aren't, then add a new circuit
-    if circuit0 == None and circuit1 == None:
-        circuits.append(set([pair[0], pair[1]]))
-        continue
+    circuit0.update([pair[0], pair[1]])
+    circuit1.update([pair[0], pair[1]])
 
-    if circuit0 != None:
-        circuit0.update([pair[0], pair[1]])
-    if circuit1 != None:
-        circuit1.update([pair[0], pair[1]])
-
-    # if we are in two different junctions, then we should combine them
-    if circuit0 != None and circuit1 != None and circuit0 != circuit1:
+    if circuit0 == circuit1:
+        if circuit0 is not circuit1:
+            # remove duplicate circuits
+            circuits.remove(circuit1)
+    else:
+        # if we are in two different junctions, then we should combine them
         circuit0.update(circuit1)
         circuits.remove(circuit1)
-        continue
     
-sorted_circuits = sorted(circuits, key=lambda circuit: len(circuit), reverse=True)
-
-key = len(sorted_circuits[0]) * len(sorted_circuits[1]) * len(sorted_circuits[2])
+    if len(circuits) == 1:
+        last_connection = [pair[0], pair[1]]
+        break
+    
+key = int(last_connection[0][0]) * int(last_connection[1][0])
 print(key)
