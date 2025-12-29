@@ -7,16 +7,28 @@ for line in text:
     outs = in_outs[1].split()
     nodes[in_outs[0]] = outs
 
-total = 0
-path_stack = ["you"]
-traversed_stack = []
-while len(path_stack) > 0:
-    curr_node = path_stack.pop()
-    if curr_node == "out":
-        total += 1
-        continue
+cache = {}
 
+def search_nodes(curr_node, has_dac, has_fft):
+    global nodes
+    global cache
+
+    if curr_node == 'out':
+        return 1 if has_dac and has_fft else 0
+
+    total = 0
     for node in nodes[curr_node]:
-        path_stack.append(node)
+        key = (node, has_dac, has_fft)
+        if key in cache:
+            total += cache[key]
+        else:        
+            pass_dac = True if has_dac or node == 'dac' else False
+            pass_fft = True if has_fft or node == 'fft' else False
 
+            result = search_nodes(node, pass_dac, pass_fft)
+            total += result
+            cache[key] = result
+    return total
+
+total = search_nodes('svr', False, False)
 print(total)
